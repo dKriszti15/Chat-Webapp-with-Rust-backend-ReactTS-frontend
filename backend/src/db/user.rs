@@ -25,8 +25,6 @@ macro_rules! user_from_record {
             exp: None,
             display_name: DisplayName::new($row.display_name)
                 .expect("Display name from database is not valid!"),
-            email: $row.email,
-            active: $row.active > 0,
         }
     };
 }
@@ -42,8 +40,6 @@ fn map_row_to_user(row: sqlx::mysql::MySqlRow) -> User {
         exp: None,
         display_name: DisplayName::new(row.get::<String, &str>("display_name"))
             .expect("Display name from database is not valid!"),
-        email: row.get("email"),
-        active: row.get::<i32, &str>("active") > 0,
     }
 }
 
@@ -60,11 +56,10 @@ pub async fn register(
     .hash_password(user.password.expose_secret().as_bytes(), &salt)?;
 
     let uuid = sqlx::query!(
-        r#"INSERT INTO users (user_id, username, display_name, password, email, admin, active) VALUES (UUID(), ?, ?, ?, ?, 0, 0) RETURNING user_id"#,
-        user.username.to_param(),
+        r#"INSERT INTO users (user_id, display_name, username, password, admin) VALUES (UUID(), ?, ?, ?, 0) RETURNING user_id"#,
         user.display_name.to_param(),
+        user.username.to_param(),
         hash.to_string(),
-        user.email,
     )
     .fetch_one(pool)
     .await
@@ -89,49 +84,9 @@ pub async fn demote(user_id: &Uuid, pool: &Pool<MySql>) -> Result<bool, DbError>
     Ok(result.rows_affected() > 0)
 }
 
-pub async fn activate(user_ids: &Vec<Uuid>, pool: &Pool<MySql>) -> Result<bool, DbError> {
-    // Unfortunately this can't be done with sqlx macros easily, hence this ugly solution:
-
-    let result = sqlx::query(
-        format!(
-            "UPDATE users SET active = 1 WHERE user_id IN ({})",
-            user_ids
-                .iter()
-                .map(|x| format!("\"{x}\""))
-                .collect::<Vec<String>>()
-                .join(", ")
-        )
-        .as_str(),
-    )
-    .execute(pool)
-    .await?;
-
-    Ok(result.rows_affected() == user_ids.len() as u64)
-}
-
-pub async fn deactivate(user_ids: &Vec<Uuid>, pool: &Pool<MySql>) -> Result<bool, DbError> {
-    // Unfortunately this can't be done with sqlx macros easily, hence this ugly solution:
-
-    let result = sqlx::query(
-        format!(
-            "UPDATE users SET active = 0 WHERE user_id IN ({})",
-            user_ids
-                .iter()
-                .map(|x| format!("\"{x}\""))
-                .collect::<Vec<String>>()
-                .join(", ")
-        )
-        .as_str(),
-    )
-    .execute(pool)
-    .await?;
-
-    Ok(result.rows_affected() == user_ids.len() as u64)
-}
-
 pub async fn get_user_by_name(username: &str, pool: &Pool<MySql>) -> Result<User, sqlx::Error> {
     sqlx::query!(
-    r#"SELECT UNHEX(REPLACE(user_id, '-', '')) AS "user_id!:Uuid", username, display_name, email, password, admin, active FROM users WHERE username = ?"#,
+    r#"SELECT UNHEX(REPLACE(user_id, '-', '')) AS "user_id!:Uuid", display_name, username, password, admin FROM users WHERE username = ?"#,
     username,
     ).fetch_one(pool)
     .await
@@ -149,7 +104,7 @@ pub async fn remove_user(username: &str, pool: &Pool<MySql>) -> Result<(), sqlx:
 
 pub async fn find_all(pool: &Pool<MySql>) -> Result<Vec<User>, sqlx::Error> {
     sqlx::query(
-        r#"SELECT UNHEX(REPLACE(user_id, '-', '')) AS "user_id!:Uuid", username, display_name, email, password, admin, active FROM users"#,
+        r#"SELECT UNHEX(REPLACE(user_id, '-', '')) AS "user_id!:Uuid", display_name, username, password, admin FROM users"#,
         )
         .map(map_row_to_user)
         .fetch_all(pool)

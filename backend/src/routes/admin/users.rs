@@ -9,7 +9,7 @@ use secrecy::{ExposeSecret, Secret};
 use uuid::Uuid;
 
 use crate::{
-    db::user::{activate, deactivate, demote, find_all, promote, remove_user},
+    db::user::{demote, find_all, promote, remove_user},
     models::User,
     routes::errors::{AdminError, NotFoundError},
     AppState,
@@ -49,7 +49,7 @@ pub fn is_authorized(
 ) -> Result<(), AdminError> {
     let user = get_user_jwt_from_token(auth_header, jwt_secret)?;
 
-    if !user.claims.admin || !user.claims.active {
+    if !user.claims.admin {
         return Err(AdminError::Unauthorized("Not admin / not active"));
     }
 
@@ -119,49 +119,6 @@ async fn demote_service(
     Ok(HttpResponse::Ok().finish())
 }
 
-#[tracing::instrument(name = "Activation attempt", skip(state, req))]
-#[post("/activate")]
-async fn activate_service(
-    state: Data<AppState>,
-    data: Json<Vec<Uuid>>,
-    req: HttpRequest,
-) -> Result<HttpResponse, AdminError> {
-    is_authorized(req.headers().get("Authorization"), &state.jwt_secret)?;
-
-    let id = data.into_inner();
-
-    let success = activate(&id, &state.db).await?;
-
-    if !success {
-        return Err(AdminError::NotFoundError(NotFoundError {
-            resource_id: format!("{:?}", id),
-        }));
-    }
-
-    Ok(HttpResponse::Ok().finish())
-}
-
-#[tracing::instrument(name = "Deactivation attempt", skip(state, req))]
-#[post("/deactivate")]
-async fn deactivate_service(
-    state: Data<AppState>,
-    data: Json<Vec<Uuid>>,
-    req: HttpRequest,
-) -> Result<HttpResponse, AdminError> {
-    is_authorized(req.headers().get("Authorization"), &state.jwt_secret)?;
-
-    let id = data.into_inner();
-
-    let success = deactivate(&id, &state.db).await?;
-
-    if !success {
-        return Err(AdminError::NotFoundError(NotFoundError {
-            resource_id: format!("{:?}", id),
-        }));
-    }
-
-    Ok(HttpResponse::Ok().finish())
-}
 
 #[tracing::instrument(name = "Removing 1 user based on username", skip(state, req))]
 #[delete("/remove")]
@@ -193,7 +150,5 @@ pub fn admin_users_router() -> Scope {
         .service(promote_service)
         .service(demote_service)
         .service(user_service)
-        .service(activate_service)
-        .service(deactivate_service)
         .service(user_deleting_service)
 }

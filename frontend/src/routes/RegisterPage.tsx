@@ -1,12 +1,31 @@
 import { faAt, faKey } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { Button, Container, Form, InputGroup, Navbar } from "react-bootstrap";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { register } from "../services/AuthService";
+import { useState } from "react";
+import { setToken, userStore } from "../services/UserService";
 
 
 function RegisterPage(){
-    function tryRegister(){
+  const [errorMessage, setErrorMessage] = useState("");
+  const navigate = useNavigate();
 
+
+    function tryRegister(){
+      const userToInsert = {
+        display_name: (document.getElementById("fullname") as HTMLInputElement).value,
+        username: (document.getElementById("username") as HTMLInputElement).value,
+        password: (document.getElementById("password") as HTMLInputElement).value,
+        password_again: (document.getElementById("password_again") as HTMLInputElement).value
+      }
+
+      register(userToInsert)
+        .then((token) => {
+          userStore.dispatch(setToken(token));
+          navigate("/");
+        })
+        .catch((err) => setErrorMessage(err));
     }
 
     return(
@@ -15,6 +34,9 @@ function RegisterPage(){
             <Link className="nav-link" to="/">Home</Link>
         </Navbar>
         <Container >
+            {errorMessage && (
+              <div className="alert alert-danger mb-3">{errorMessage}</div>
+            )}
             <InputGroup className="mb-3">
               <InputGroup.Text>
                 <FontAwesomeIcon icon={faAt} size="xl" />
@@ -22,20 +44,8 @@ function RegisterPage(){
               <Form.Control
                 type="text"
                 className="form-control"
-                id="firstname"
-                placeholder="First name"
-                size="lg"
-              />
-            </InputGroup>
-            <InputGroup className="mb-3">
-              <InputGroup.Text>
-                <FontAwesomeIcon icon={faAt} size="xl" />
-              </InputGroup.Text>
-              <Form.Control
-                type="text"
-                className="form-control"
-                id="lastname"
-                placeholder="Last name"
+                id="fullname"
+                placeholder="Full name"
                 size="lg"
               />
             </InputGroup>

@@ -2,12 +2,10 @@ use webchat;
 
 CREATE TABLE users (
   user_id UUID PRIMARY KEY NOT NULL,
-  username TEXT NOT NULL UNIQUE,
   display_name TEXT NOT NULL,
-  email TEXT NOT NULL,
+  username TEXT NOT NULL UNIQUE,
   password TEXT NOT NULL,
-  admin INT NOT NULL,
-  active INT NOT NULL
+  admin INT NOT NULL
 );
 
 CREATE TABLE files (

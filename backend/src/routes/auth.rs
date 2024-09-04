@@ -36,12 +36,6 @@ async fn login_service(
 ) -> Result<HttpResponse, AuthError> {
     let user = validate_password(&state.db, data.into_inner()).await?;
 
-    if !user.active {
-        return Err(AuthError::ValidationError(ValidationError::new(
-            "The user is currently not active.",
-        )));
-    }
-
     let token = jsonwebtoken::encode(
         &jsonwebtoken::Header::default(),
         &user,
@@ -57,7 +51,6 @@ async fn register_service(
     state: Data<AppState>,
     data: Json<UserInDTO<PasswordUnchecked>>,
 ) -> impl Responder {
-    // Check constraints
     let check = data.into_inner().check_passwords();
     if let Err(err) = check {
         return Err(err.into());
@@ -72,8 +65,6 @@ async fn register_service(
             "Username already taken.",
         )));
     }
-
-    // Register user
 
     register(user, &state.db).await.map(|_| HttpResponse::Ok())
 }
@@ -90,12 +81,6 @@ async fn keepalive_service(
 
     let mut user =
         get_user_by_name(&user_info.claims.username.clone().into_inner(), &state.db).await?;
-
-    if !user.active {
-        return Err(AdminError::Unauthorized(
-            "User has been blocked since last token.",
-        ));
-    }
 
     user.exp.replace(
         chrono::offset::Utc::now()
@@ -130,8 +115,6 @@ fn get_false_user() -> User {
         admin: false,
         exp: None,
         display_name: DisplayName::new("FAKEY Fakey").expect("Fake user failed display name"),
-        email: "AAAA@AAAA.com".to_string(),
-        active: true,
     }
 }
 

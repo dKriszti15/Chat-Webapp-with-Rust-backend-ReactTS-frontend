@@ -19,7 +19,6 @@ pub struct UserInDTO<T> {
     // We couldn't secretize a nutype
     pub password: Secret<String>,
     pub password_again: Secret<String>,
-    pub email: String,
     #[serde(skip_serializing, default)]
     ph: PhantomData<T>,
 }
@@ -27,18 +26,16 @@ pub struct UserInDTO<T> {
 impl<T> UserInDTO<T> {
     #[must_use]
     pub fn new(
-        username: Username,
         display_name: DisplayName,
+        username: Username,
         password: String,
         password_again: String,
-        email: String,
     ) -> UserInDTO<PasswordUnchecked> {
         UserInDTO::<PasswordUnchecked> {
-            username,
             display_name,
+            username,
             password: Secret::new(password),
             password_again: Secret::new(password_again),
-            email,
             ph: PhantomData,
         }
     }
@@ -73,11 +70,10 @@ impl UserInDTO<PasswordUnchecked> {
         }
 
         Ok(UserInDTO::<PasswordChecked> {
-            username: self.username,
             display_name: self.display_name,
+            username: self.username,
             password: self.password,
             password_again: self.password_again,
-            email: self.email,
             ph: PhantomData,
         })
     }
