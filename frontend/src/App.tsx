@@ -6,6 +6,7 @@ import HomePage from './routes/HomePage';
 import RegisterPage from './routes/RegisterPage';
 import LoginPage from './routes/LoginPage';
 import Navibar from './routes/Navibar';
+import MyChats from './routes/MyChats';
 
 function App() {
   const [, setToken] = useState<string | null>(null);
@@ -24,11 +25,12 @@ function App() {
 
   return (
     <BrowserRouter>
-      <Navibar /> {/* Keep Navibar outside of Routes so it is always visible */}
+      <Navibar />
       <Routes>
-        <Route path="/" element={<HomePage />} /> {/* Make sure "/" points to HomePage */}
+        <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/my-chats/:username" element={<MyChats />} />
       </Routes>
     </BrowserRouter>
   );

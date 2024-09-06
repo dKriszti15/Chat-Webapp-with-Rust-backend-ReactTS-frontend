@@ -1,7 +1,7 @@
 import { faAt, faKey } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { Button, Container, Form, InputGroup, Navbar } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Button, Container, Form, InputGroup } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { register } from "../services/AuthService";
 import { useState } from "react";
 import { setToken, userStore } from "../services/UserService";
@@ -30,9 +30,6 @@ function RegisterPage(){
 
     return(
         <>
-        <Navbar>
-            <Link className="nav-link" to="/">Home</Link>
-        </Navbar>
         <Container >
             {errorMessage && (
               <div className="alert alert-danger mb-3">{errorMessage}</div>

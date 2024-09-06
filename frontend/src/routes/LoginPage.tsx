@@ -1,14 +1,28 @@
 import { faAt, faKey } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { useState } from "react";
-import { Button, Container, Form, InputGroup, Navbar } from "react-bootstrap";
-import { Link, useNavigate } from "react-router-dom";
+import { Button, Container, Form, InputGroup } from "react-bootstrap";
+import { useNavigate } from "react-router-dom";
 import { login } from "../services/AuthService";
 import { setToken, userStore } from "../services/UserService";
+import { decode } from "jsonwebtoken";
 
 function LoginPage(){
   const [errorMessage, setErrorMessage] = useState("");
   const navigate = useNavigate();
+
+  function getPrintableUsername(token: string): string {
+    let user = decode(token) as {
+      admin: boolean;
+      username: string;
+    };
+
+    if (user == null) {
+      return 'guest';
+    }
+
+    return user.username;
+  }
     
   function tryLogin(){
       const loggingUser = {
@@ -19,16 +33,13 @@ function LoginPage(){
       login(loggingUser.username, loggingUser.password)
         .then((token) => {
           userStore.dispatch(setToken(token));
-          navigate("/");
+          navigate(`/my-chats/${getPrintableUsername(token)}`);
         })
         .catch((err) => setErrorMessage(err));
     }
 
     return(
         <>
-        <Navbar>
-            <Link className="nav-link" to="/">Home</Link>
-        </Navbar>
         <Container >
             {errorMessage && (
               <div className="alert alert-danger mb-3">{errorMessage}</div>
