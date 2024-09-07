@@ -12,7 +12,7 @@ use backend::{
 async fn main() -> Result<(), std::io::Error> {
     dotenv().ok();
 
-    let subsciber = create_subscriber("daczk".into(), "info".into());
+    let subsciber = create_subscriber("zlms".into(), "info".into());
     init_subscriber(subsciber);
 
     let db_url = std::env::var("DATABASE_URL").expect("No DATABASE_URL set");
