@@ -1,0 +1,19 @@
+{
+  "name": "websocketserver",
+  "version": "1.0.0",
+  "main": "websocketserver.js",
+  "scripts": {
+    "start": "node websocketserver.js"
+  },
+  "type": "module",
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "socket.io": "^4.7.5",
+    "use-sound": "^4.0.3"
+  },
+  "devDependencies": {
+    "express": "^4.19.2"
+  }
+}

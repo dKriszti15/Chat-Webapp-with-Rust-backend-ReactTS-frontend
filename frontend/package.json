@@ -30,6 +30,7 @@
     "stream": "^0.0.3",
     "stream-browserify": "^3.0.0",
     "typescript": "^5.5.4",
+    "use-sound": "^4.0.3",
     "util": "^0.12.5",
     "vm-browserify": "^1.1.2",
     "web-vitals": "^4.2.3"
