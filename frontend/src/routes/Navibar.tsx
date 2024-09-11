@@ -42,7 +42,7 @@ function Navibar() {
         {userInfo ? (
           <>
           <Nav.Link onClick={logout}>Logout</Nav.Link>
-          <Link className="nav-link" to={`/my-chats/${getPrintableUsername(userInfo)}`}>My chats</Link>
+          <Link className="nav-link" to={`/lobby/${getPrintableUsername(userInfo)}`}>Lobby</Link>
           </>
         ) : (
           <>

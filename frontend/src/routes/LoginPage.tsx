@@ -33,7 +33,7 @@ function LoginPage(){
       login(loggingUser.username, loggingUser.password)
         .then((token) => {
           userStore.dispatch(setToken(token));
-          navigate(`/my-chats/${getPrintableUsername(token)}`);
+          navigate(`/lobby/${getPrintableUsername(token)}`);
         })
         .catch((err) => setErrorMessage(err));
     }

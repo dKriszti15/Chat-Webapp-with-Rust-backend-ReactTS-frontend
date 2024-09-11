@@ -6,7 +6,8 @@ import HomePage from './routes/HomePage';
 import RegisterPage from './routes/RegisterPage';
 import LoginPage from './routes/LoginPage';
 import Navibar from './routes/Navibar';
-import MyChats from './routes/MyChats';
+import AllChat from './routes/AllChat';
+import Lobby from './routes/Lobby';
 
 function App() {
   const [, setToken] = useState<string | null>(null);
@@ -30,7 +31,8 @@ function App() {
         <Route path="/" element={<HomePage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/login" element={<LoginPage />} />
-        <Route path="/my-chats/:username" element={<MyChats />} />
+        <Route path="/lobby/:username" element={<Lobby />} />
+        <Route path='/all-chat/:username' element={<AllChat />} />
       </Routes>
     </BrowserRouter>
   );

@@ -41,6 +41,12 @@ io.on('connection', (socket) => {
         console.log(`Client disconnected: ${socket.id}. Total clients: ${Object.keys(connectedSockets).length}`);
     });
 
+    socket.on('connected-clients', (username) => {
+        const otherUsers = Object.keys(connectedSockets).filter((user) => user !== username && user !== 'guest');
+        console.log(`Other users (excluding ${username}): ${otherUsers}`);
+        socket.emit('connected-clients', otherUsers);
+    });
+
     socket.on('message', (data) => {
         socket.broadcast.emit('chatMessage', data);
     });
