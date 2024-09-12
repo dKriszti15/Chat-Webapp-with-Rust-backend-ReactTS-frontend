@@ -71,7 +71,7 @@ function Lobby() {
                 <ul className="userListContainer">
                    <Link to={`/all-chat/${loggedUser}`}><li className="userListItem">All Chat</li></Link>
                     {activeUsers && activeUsers.map((user, index) => (
-                        <Link to={`/${loggedUser}-chats-with-${user}`}><li className="userListItem" key={index}>{user}</li> </Link>
+                        <Link to={`/${loggedUser}/chats-with/${user}`}><li className="userListItem" key={index}>{user}</li> </Link>
                     ))}
                 </ul>
             )}

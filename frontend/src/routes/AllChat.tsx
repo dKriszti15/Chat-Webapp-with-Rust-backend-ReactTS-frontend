@@ -19,7 +19,7 @@ const AllChat: React.FC = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [messageInput, setMessageInput] = useState<string>('');
-    const [toUser, setToUser] = useState<string>('');
+    const [toUser, ] = useState<string>('');
     const [userInfo, setUserInfo] = useState<string | null>(null);
 
     const [playSentSound] = useSound(SENT_SOUND_PATH);
@@ -75,10 +75,6 @@ const AllChat: React.FC = () => {
             addMessageToUI(false, msg);
         });
 
-        newSocket.on('privateChatMessage', (msg: Message) => {
-            addMessageToUI(false, msg);
-        });
-
         return () => {
             newSocket.disconnect();
             console.log('Socket disconnected');
@@ -113,7 +109,7 @@ const AllChat: React.FC = () => {
         <>
         <h2>All Chat</h2>
         <div>
-            <ul id="messageContainer">
+            <ul className="messageContainer">
                 {messages.map((msg, index) => (
                     <li key={index} className={msg.from === loggedUser ? 'messageRight' : 'messageLeft'}>
                         <p className="message">
@@ -125,18 +121,12 @@ const AllChat: React.FC = () => {
                 ))}
             </ul>
 
-            <form id="messageSendingForm" onSubmit={sendMessage}>
+            <form className="messageSendingForm" onSubmit={sendMessage}>
                 <input
                     type="text"
                     id="messageInput"
                     value={messageInput}
                     onChange={(e) => setMessageInput(e.target.value)}
-                />
-                <input
-                    type="text"
-                    id="toUser"
-                    value={toUser}
-                    onChange={(e) => setToUser(e.target.value)}
                 />
                 <button type="submit">Send Message</button>
             </form>

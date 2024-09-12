@@ -34,7 +34,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/lobby/:username" element={<Lobby />} />
         <Route path='/all-chat/:username' element={<AllChat />} />
-        <Route path='/:user1-chats-with-:user2' element={<Conversation />} />
+        <Route path='/:user1/chats-with/:user2' element={<Conversation />} />
       </Routes>
     </BrowserRouter>
   );

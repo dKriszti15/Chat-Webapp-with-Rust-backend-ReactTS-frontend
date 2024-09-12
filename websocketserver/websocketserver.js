@@ -53,6 +53,7 @@ io.on('connection', (socket) => {
 
     socket.on('privateMessage', (data) => {
         const destSocket = connectedSockets[data.to];
+        console.log(destSocket)
         if (destSocket) {
             io.to(destSocket).emit('privateChatMessage', data);
         } else {

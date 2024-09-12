@@ -19,7 +19,7 @@ body {
   border-radius: 30px;
 }
 
-#messageContainer {
+.messageContainer {
   display: flex;
   flex-direction: column;
   background-color: #D6E0E2;  
