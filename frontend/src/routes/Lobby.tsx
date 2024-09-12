@@ -1,20 +1,25 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import config from "../config/backendConfig";
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 import { userStore } from "../services/UserService";
 import { decode } from "jsonwebtoken";
-import './Lobby.css'
+import './Lobby.css';
 import { Link } from "react-router-dom";
 
 function Lobby() {
     const [userInfo, setUserInfo] = useState<string | null>(null);
     const [activeUsers, setActiveUsers] = useState<string[]>([]); 
+    const [isTokenChecked, setIsTokenChecked] = useState(false);
+    const navigate = useNavigate();
+    const socketRef = useRef<Socket | null>(null);
 
     useEffect(() => {
         const unsubscribe = userStore.subscribe(() => {
             setUserInfo(userStore.getState().token);
         });
         setUserInfo(userStore.getState().token);
+        setIsTokenChecked(true);
         return () => unsubscribe();
     }, []);
 
@@ -34,29 +39,45 @@ function Lobby() {
     const loggedUser = userInfo ? getPrintableUsername(userInfo) : 'guest';
 
     useEffect(() => {
-        const newSocket = io(config.websocketserverAddress);
-    
-        newSocket.emit('register', loggedUser);
+        if (isTokenChecked && loggedUser === 'guest') {
+            navigate('/login');
+        }
+    }, [loggedUser, navigate, isTokenChecked]);
 
-        newSocket.emit('connected-clients', loggedUser);
-    
-        newSocket.on('connected-clients', (activeUsers: string[]) => {
-            setActiveUsers(activeUsers); 
-            console.log(`clients connected: ${activeUsers}`);
-        });
+    useEffect(() => {
+        if (loggedUser !== 'guest' && !socketRef.current) {
+            socketRef.current = io(config.websocketserverAddress);
 
+            socketRef.current.emit('register', loggedUser);
+            socketRef.current.emit('connected-clients', loggedUser);
+        
+            socketRef.current.on('connected-clients', (activeUsers: string[]) => {
+                setActiveUsers(activeUsers); 
+                console.log(`clients connected: ${activeUsers}`);
+            });
+        }
+
+        return () => {
+            if (socketRef.current) {
+                socketRef.current.disconnect();
+                socketRef.current = null;
+            }
+        };
     }, [loggedUser]);
 
     return (
-        <>
-            <ul>
-                <li className="userListItem"><Link to={`/all-chat/${loggedUser}`}>All Chat</Link></li>
-                {activeUsers && activeUsers.map((user, index) => (
-                    <li className="userListItem" key={index}>{user}</li>
-                ))}
-            </ul>
-        </>
+        <div className="parentContainer">
+            {isTokenChecked && loggedUser !== 'guest' && (
+                <ul className="userListContainer">
+                    <li className="userListItem"><Link to={`/all-chat/${loggedUser}`}>All Chat</Link></li>
+                    {activeUsers && activeUsers.map((user, index) => (
+                        <li className="userListItem" key={index}>{user}</li>
+                    ))}
+                </ul>
+            )}
+        </div>
     );
+    
 }
 
 export default Lobby;

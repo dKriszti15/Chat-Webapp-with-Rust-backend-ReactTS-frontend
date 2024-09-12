@@ -36,8 +36,7 @@ function Navibar() {
   }
 
   return (
-    <Navbar>
-      <Nav className="me-auto">
+    <Navbar className="col-12 nb-custom mynavbar">
         <Link className="nav-link" to="/">Home</Link>
         {userInfo ? (
           <>
@@ -50,7 +49,6 @@ function Navibar() {
             <Link className="nav-link" to="/register">Register</Link>
           </>
         )}
-      </Nav>
     </Navbar>
   );
 }
