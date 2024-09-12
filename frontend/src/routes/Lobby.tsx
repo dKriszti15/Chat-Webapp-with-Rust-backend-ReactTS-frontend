@@ -69,9 +69,9 @@ function Lobby() {
         <div className="parentContainer">
             {isTokenChecked && loggedUser !== 'guest' && (
                 <ul className="userListContainer">
-                    <li className="userListItem"><Link to={`/all-chat/${loggedUser}`}>All Chat</Link></li>
+                   <Link to={`/all-chat/${loggedUser}`}><li className="userListItem">All Chat</li></Link>
                     {activeUsers && activeUsers.map((user, index) => (
-                        <li className="userListItem" key={index}>{user}</li>
+                        <Link to={`/${loggedUser}-chats-with-${user}`}><li className="userListItem" key={index}>{user}</li> </Link>
                     ))}
                 </ul>
             )}

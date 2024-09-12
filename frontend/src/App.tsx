@@ -8,6 +8,7 @@ import LoginPage from './routes/LoginPage';
 import Navibar from './routes/Navibar';
 import AllChat from './routes/AllChat';
 import Lobby from './routes/Lobby';
+import Conversation from './routes/Conversation';
 
 function App() {
   const [, setToken] = useState<string | null>(null);
@@ -33,6 +34,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/lobby/:username" element={<Lobby />} />
         <Route path='/all-chat/:username' element={<AllChat />} />
+        <Route path='/:user1-chats-with-:user2' element={<Conversation />} />
       </Routes>
     </BrowserRouter>
   );

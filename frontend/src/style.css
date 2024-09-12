@@ -211,11 +211,12 @@ form textarea {
 }
 
 a {
-  background-color: #e3a66a;
   border-radius: 5px;
   align-content: center;
   padding: 5px;
   font-size: large;
+  color: white;
+  text-decoration: solid;
 }
 
 .navbar {
@@ -237,7 +238,7 @@ a {
 }
 
 .nav-link:hover {
-  background-color: #566159;
+  background-color: #327243;
 }
 
 
