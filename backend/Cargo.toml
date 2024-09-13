@@ -34,7 +34,7 @@ serde_json = "1.0.105"
 sqlx = { version = "0.7.1", features = ["runtime-async-std-native-tls", "mysql", "uuid", "chrono", "migrate", "runtime-tokio-native-tls"] }
 secrecy = { version = "0.8", features = ["serde"] }
 rand = "0.8.5"
-chrono = "0.4.38"
+chrono = { version = "0.4.38", features = ["serde"] }
 tokio = {version = "1.31.0", features = ["full"]}
 validator = { version = "0.16.1", features = ["derive"]}
 nutype = { version = "0.3.1", features = ["regex", "serde"]}

@@ -4,7 +4,7 @@ use actix_cors::Cors;
 use actix_web::{
     dev::Server, get, http, middleware, web::Data, App, HttpResponse, HttpServer, Responder,
 };
-use routes::{admin_router, auth_router};
+use routes::{admin_router, auth_router, message_router};
 use secrecy::Secret;
 use sqlx::{MySql, Pool};
 use tracing_actix_web::TracingLogger;
@@ -51,6 +51,7 @@ pub fn run(
                 actix_web::web::scope("/api")
                     .service(auth_router())
                     .service(admin_router())
+                    .service(message_router())
 
             )
     })

@@ -16,7 +16,6 @@ pub struct PasswordUnchecked;
 pub struct UserInDTO<T> {
     pub display_name: DisplayName,
     pub username: Username,
-    // We couldn't secretize a nutype
     pub password: Secret<String>,
     pub password_again: Secret<String>,
     #[serde(skip_serializing, default)]

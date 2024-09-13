@@ -52,12 +52,12 @@ io.on('connection', (socket) => {
     });
 
     socket.on('privateMessage', (data) => {
-        const destSocket = connectedSockets[data.to];
-        console.log(destSocket)
+        const destSocket = connectedSockets[data.to_user];
+        console.log(`to_user's socket: ${destSocket}`)
         if (destSocket) {
             io.to(destSocket).emit('privateChatMessage', data);
         } else {
-            console.log('User not connected');
+            console.log(`User ${data.to_user} not connected`);
         }
     });
 });

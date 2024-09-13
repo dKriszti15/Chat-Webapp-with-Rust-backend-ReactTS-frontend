@@ -23,3 +23,10 @@ CREATE TABLE file_token (
   file_token_max_size INT
 );
 
+CREATE TABLE messages (
+  message_id UUID PRIMARY KEY NOT NULL,
+  from_user VARCHAR(50) NOT NULL,
+  to_user VARCHAR(50) NOT NULL,
+  msg TEXT NOT NULL,
+  date_time VARCHAR(125) NOT NULL
+)

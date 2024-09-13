@@ -6,16 +6,11 @@ import config from "../config/backendConfig";
 import { io, Socket } from "socket.io-client";
 import '../style.css';
 import { useParams } from 'react-router-dom';
+import { saveMessage } from "../services/MessageService";
+import { Message } from "../models/Message";
 
 const SENT_SOUND_PATH = '/sounds/sentSound.mp3';
 const RECEIVED_SOUND_PATH = '/sounds/rcvdSound.mp3';
-
-interface Message {
-    from: string;
-    to: string;
-    message: string;
-    dateTime: string;
-}
 
 function Conversation() {
     const [socket, setSocket] = useState<Socket | null>(null);
@@ -87,36 +82,42 @@ function Conversation() {
         };
     }, [addMessageToUI, loggedUser]);
 
-    const sendMessage = (event: React.FormEvent<HTMLFormElement>) => {
+    const sendMessage = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
-
+    
         if (messageInput === '' || !socket) return;
-
+    
         const msg: Message = {
-            from: loggedUser,
-            to: toUser,
-            message: messageInput,
-            dateTime: new Date().toLocaleString(),
+            from_user: loggedUser,
+            to_user: toUser,
+            msg: messageInput,
+            date_time: new Date().toLocaleString()
         };
-
+    
         socket.emit('privateMessage', msg);
-
+    
         setMessageInput('');
         addMessageToUI(true, msg);
-
-        console.log(msg);
+    
+        try {
+            await saveMessage(msg);
+        } catch (error) {
+            console.error("Error saving message:", error);
+        }
+    
     };
+    
 
     return (
         <>
             <div>
                 <ul className="messageContainer">
                     {messages.map((msg, index) => (
-                        <li key={index} className={msg.from === loggedUser ? 'messageRight' : 'messageLeft'}>
+                        <li key={index} className={msg.from_user === loggedUser ? 'messageRight' : 'messageLeft'}>
                             <p className="message">
-                                <span>{msg.from}: {msg.message}</span>
+                                <span>{msg.from_user}: {msg.msg}</span>
                                 <br />
-                                <span> ● {msg.dateTime}</span>
+                                <span> ● {msg.date_time.toLocaleString()}</span>
                             </p>
                         </li>
                     ))}

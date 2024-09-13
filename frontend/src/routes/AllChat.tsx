@@ -4,22 +4,16 @@ import { io, Socket } from 'socket.io-client';
 import { userStore } from '../services/UserService';
 import config from '../config/backendConfig';
 import useSound from 'use-sound';
+import { Message } from '../models/Message';
+import { saveMessage } from '../services/MessageService';
 
 const SENT_SOUND_PATH = '/sounds/sentSound.mp3';
 const RECEIVED_SOUND_PATH = '/sounds/rcvdSound.mp3';
-
-interface Message {
-    from: string;
-    to: string;
-    message: string;
-    dateTime: string;
-}
 
 const AllChat: React.FC = () => {
     const [socket, setSocket] = useState<Socket | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [messageInput, setMessageInput] = useState<string>('');
-    const [toUser, ] = useState<string>('');
     const [userInfo, setUserInfo] = useState<string | null>(null);
 
     const [playSentSound] = useSound(SENT_SOUND_PATH);
@@ -87,20 +81,18 @@ const AllChat: React.FC = () => {
         if (messageInput === '' || !socket) return;
 
         const msg: Message = {
-            from: loggedUser,
-            to: toUser === 'everyone' ? '' : toUser,
-            message: messageInput,
-            dateTime: new Date().toLocaleString(),
+            from_user: loggedUser,
+            to_user: 'all',
+            msg: messageInput,
+            date_time: new Date().toLocaleString(),
         };
 
-        if (msg.to === '') {
-            socket.emit('message', msg);
-        } else {
-            socket.emit('privateMessage', msg);
-        }
-
+        socket.emit('message', msg);
+        
         setMessageInput('');
         addMessageToUI(true, msg);
+
+        saveMessage(msg);
 
         console.log(msg);
     };
@@ -111,11 +103,11 @@ const AllChat: React.FC = () => {
         <div>
             <ul className="messageContainer">
                 {messages.map((msg, index) => (
-                    <li key={index} className={msg.from === loggedUser ? 'messageRight' : 'messageLeft'}>
+                    <li key={index} className={msg.from_user === loggedUser ? 'messageRight' : 'messageLeft'}>
                         <p className="message">
-                            <span>{msg.from}: {msg.message}</span>
+                            <span>{msg.from_user}: {msg.msg}</span>
                             <br />
-                            <span> ● {msg.dateTime}</span>
+                            <span> ● {msg.date_time}</span>
                         </p>
                     </li>
                 ))}
