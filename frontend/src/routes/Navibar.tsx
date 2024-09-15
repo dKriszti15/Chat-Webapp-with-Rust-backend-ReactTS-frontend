@@ -40,8 +40,8 @@ function Navibar() {
         <Link className="nav-link" to="/">Home</Link>
         {userInfo ? (
           <>
-          <Nav.Link onClick={logout}>Logout</Nav.Link>
           <Link className="nav-link" to={`/lobby/${getPrintableUsername(userInfo)}`}>Lobby</Link>
+          <Nav.Link onClick={logout}>Logout</Nav.Link>
           </>
         ) : (
           <>

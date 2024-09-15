@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import useSound from "use-sound";
 import { userStore } from "../services/UserService";
 import { decode } from "jsonwebtoken";
@@ -8,6 +8,9 @@ import '../style.css';
 import { useParams } from 'react-router-dom';
 import { loadMessages_all, saveMessage } from "../services/MessageService";
 import { Message } from "../models/Message";
+import { faArrowRightLong } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Button } from "react-bootstrap";
 
 const SENT_SOUND_PATH = '/sounds/sentSound.mp3';
 const RECEIVED_SOUND_PATH = '/sounds/rcvdSound.mp3';
@@ -22,6 +25,8 @@ function Conversation() {
 
     const [playSentSound] = useSound(SENT_SOUND_PATH);
     const [playReceivedSound] = useSound(RECEIVED_SOUND_PATH);
+
+    const messageContainerRef = useRef<HTMLUListElement>(null);
 
     function getPrintableUsername(token: string): string {
         const user = decode(token) as {
@@ -38,6 +43,12 @@ function Conversation() {
 
     const loggedUser = userInfo ? getPrintableUsername(userInfo) : 'guest';
 
+    const scrollToBottom = useCallback(() => {
+        if (messageContainerRef.current) {
+            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+        }
+    }, []);
+
     useEffect(() => {
         loadMessages_all()
             .then((loadedMessages) => {
@@ -53,6 +64,10 @@ function Conversation() {
     }, [loggedUser, toUser]);
 
     useEffect(() => {
+        scrollToBottom();
+    }, [messages, scrollToBottom]);
+
+    useEffect(() => {
         if (user2) {
             setToUser(user2);
         }
@@ -66,9 +81,6 @@ function Conversation() {
         return () => unsubscribe();
     }, []);
     
-
-    
-
     const addMessageToUI = useCallback((ownMessage: boolean, msg: Message) => {
         setMessages((prevMessages) => [...prevMessages, msg]);
 
@@ -121,20 +133,18 @@ function Conversation() {
         } catch (error) {
             console.error("Error saving message:", error);
         }
-    
     };
-    
 
     return (
         <>
             <div>
-                <ul className="messageContainer">
+                <ul ref={messageContainerRef} className="messageContainer">
                     {messages.map((msg, index) => (
                         <li key={index} className={msg.from_user === loggedUser ? 'messageRight' : 'messageLeft'}>
                             <p className="message">
                                 <span>{msg.from_user}: {msg.msg}</span>
                                 <br />
-                                <span> ● {msg.date_time.toLocaleString()}</span>
+                                <span> ● {msg.date_time}</span>
                             </p>
                         </li>
                     ))}
@@ -147,7 +157,9 @@ function Conversation() {
                         value={messageInput}
                         onChange={(e) => setMessageInput(e.target.value)}
                     />
-                    <button type="submit">Send Message</button>
+                    <Button type="submit">
+                        <FontAwesomeIcon id="addUserIcon" icon={faArrowRightLong} />
+                    </Button>
                 </form>
             </div>
         </>

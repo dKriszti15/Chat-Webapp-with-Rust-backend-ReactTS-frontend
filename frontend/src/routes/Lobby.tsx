@@ -6,6 +6,9 @@ import { userStore } from "../services/UserService";
 import { decode } from "jsonwebtoken";
 import './Lobby.css';
 import { Link } from "react-router-dom";
+import { Button } from "react-bootstrap";
+import { faRefresh } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 
 function Lobby() {
     const [userInfo, setUserInfo] = useState<string | null>(null);
@@ -65,19 +68,31 @@ function Lobby() {
         };
     }, [loggedUser]);
 
+    function refreshConnectedUsers() {
+        if (socketRef.current && loggedUser !== 'guest') {
+            socketRef.current.emit('connected-clients', loggedUser);
+        }
+    }
+
     return (
         <div className="parentContainer">
             {isTokenChecked && loggedUser !== 'guest' && (
-                <ul className="userListContainer">
-                   <Link to={`/all-chat/${loggedUser}`}><li className="userListItem">All Chat</li></Link>
-                    {activeUsers && activeUsers.map((user, index) => (
-                        <Link to={`/${loggedUser}/chats-with/${user}`}><li className="userListItem" key={index}>{user}</li> </Link>
-                    ))}
-                </ul>
+                <div>
+                    <Button onClick={refreshConnectedUsers}>
+                        <FontAwesomeIcon id="addUserIcon" icon={faRefresh} />
+                    </Button>
+                    <ul className="userListContainer">
+                        <Link to={`/all-chat/${loggedUser}`}><li className="userListItem">All Chat</li></Link>
+                        {activeUsers && activeUsers.map((user, index) => (
+                            <Link to={`/${loggedUser}/chats-with/${user}`} key={index}>
+                                <li className="userListItem">{user}</li>
+                            </Link>
+                        ))}
+                    </ul>
+                </div>
             )}
         </div>
     );
-    
 }
 
 export default Lobby;

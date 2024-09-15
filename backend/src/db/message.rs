@@ -40,7 +40,17 @@ fn map_row_to_message(row: sqlx::mysql::MySqlRow) -> Message {
 
 pub async fn find_all(pool: &Pool<MySql>) -> Result<Vec<Message>, sqlx::Error> {
     sqlx::query(
-        r#"SELECT UNHEX(REPLACE(message_id, '-', '')) AS "message_id!:Uuid", from_user, to_user, msg, date_time FROM messages ORDER BY date_time ASC"#,
+        r#"SELECT 
+                UNHEX(REPLACE(message_id, '-', '')) AS "message_id!:Uuid",
+                from_user, 
+                to_user, 
+                msg, 
+                date_time 
+                FROM 
+                    messages 
+                ORDER BY 
+                    STR_TO_DATE(date_time, '%m/%d/%Y, %h:%i:%s %p') ASC;
+            "#,
         )
         .map(map_row_to_message)
         .fetch_all(pool)
