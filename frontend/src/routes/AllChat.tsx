@@ -5,7 +5,7 @@ import { userStore } from '../services/UserService';
 import config from '../config/backendConfig';
 import useSound from 'use-sound';
 import { Message } from '../models/Message';
-import { saveMessage } from '../services/MessageService';
+import { loadMessages_all, saveMessage } from '../services/MessageService';
 
 const SENT_SOUND_PATH = '/sounds/sentSound.mp3';
 const RECEIVED_SOUND_PATH = '/sounds/rcvdSound.mp3';
@@ -39,6 +39,17 @@ const AllChat: React.FC = () => {
 
         return user.username;
     }
+
+    useEffect(() => {
+        loadMessages_all()
+            .then((loadedMessages) => {
+                setMessages(loadedMessages);
+            })
+            .catch((error) => {
+                console.error("Error loading messages:", error);
+            });
+    }, []);
+    
 
     const loggedUser = userInfo ? getPrintableUsername(userInfo) : 'guest';
 
@@ -92,7 +103,14 @@ const AllChat: React.FC = () => {
         setMessageInput('');
         addMessageToUI(true, msg);
 
-        saveMessage(msg);
+        saveMessage(msg)
+        .then(() => {
+            console.log("Message saved successfully");
+        })
+        .catch((error) => {
+            console.error("Error saving message:", error);
+        });
+
 
         console.log(msg);
     };

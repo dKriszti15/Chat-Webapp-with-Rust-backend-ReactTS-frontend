@@ -32,5 +32,15 @@ export function saveMessage(message: MessageInDTO): Promise<string> {
             return resolve(text.toString());
           } catch { }
         });
+}
 
+export async function loadMessages_all(): Promise<MessageInDTO[]> {
+  const response = await fetch(`${backendConfig.backendURL}/messages/load-all`, {
+    method: "GET",
+    headers: new Headers({
+      "content-type": "application/json"
+    }),
+  });
+  console.log(response.json)
+  return await response.json();
 }

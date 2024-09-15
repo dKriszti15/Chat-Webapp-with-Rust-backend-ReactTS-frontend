@@ -1,8 +1,9 @@
-use crate::{db::message::save_message, AppState};
+use crate::routes::errors::AdminError;
+use crate::{db::message::{save_message, find_all}, AppState};
 use actix_web::{
-    post,
+    post, get,
     web::{Data, Json},
-    HttpResponse, Responder,
+    HttpRequest, HttpResponse, Responder,
 };
 
 use crate::models::dto::indto::MessageInDTO;
@@ -19,8 +20,17 @@ async fn save_message_service(
     save_message(message, &state.db).await.map(|_| HttpResponse::Ok())
 }
 
+#[tracing::instrument(name = "Message loading attempt", skip(state))]
+#[get("/load-all")]
+async fn load_messages_service(state: Data<AppState>, req: HttpRequest) -> Result<HttpResponse, AdminError> {
+
+    let messages = find_all(&state.db).await?;
+
+    Ok(HttpResponse::Ok().json(messages))
+}
 
 pub fn message_router() -> actix_web::Scope{
     actix_web::web::scope("/messages")
         .service(save_message_service)
+        .service(load_messages_service)
 }

@@ -1,8 +1,9 @@
+
 use sqlx::{MySql, Pool, Row};
 use uuid::Uuid;
 
 use crate::{
-    models::dto::indto::message::MessageInDTO,
+    models::{dto::indto::message::MessageInDTO, Message},
     routes::errors::AuthError,
     traits::ToSqlParam,
 };
@@ -24,4 +25,24 @@ pub async fn save_message(
     .map(|x| Uuid::parse_str(x.get::<&str, usize>(0)).unwrap())?;
 
     Ok(uuid)
+}
+
+fn map_row_to_message(row: sqlx::mysql::MySqlRow) -> Message {
+    Message {
+        message_id: row.get(0),
+        from_user: row.get::<String, &str>("from_user"),
+        to_user: row.get::<String, &str>("to_user"),
+        msg: row.get::<String, &str>("msg"),
+        date_time: row.get::<String, &str>("date_time"),
+        
+    }
+}
+
+pub async fn find_all(pool: &Pool<MySql>) -> Result<Vec<Message>, sqlx::Error> {
+    sqlx::query(
+        r#"SELECT UNHEX(REPLACE(message_id, '-', '')) AS "message_id!:Uuid", from_user, to_user, msg, date_time FROM messages WHERE to_user = 'all'"#,
+        )
+        .map(map_row_to_message)
+        .fetch_all(pool)
+        .await
 }
