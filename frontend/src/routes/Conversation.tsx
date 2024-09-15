@@ -6,7 +6,7 @@ import config from "../config/backendConfig";
 import { io, Socket } from "socket.io-client";
 import '../style.css';
 import { useParams } from 'react-router-dom';
-import { saveMessage } from "../services/MessageService";
+import { loadMessages_all, saveMessage } from "../services/MessageService";
 import { Message } from "../models/Message";
 
 const SENT_SOUND_PATH = '/sounds/sentSound.mp3';
@@ -23,20 +23,6 @@ function Conversation() {
     const [playSentSound] = useSound(SENT_SOUND_PATH);
     const [playReceivedSound] = useSound(RECEIVED_SOUND_PATH);
 
-    useEffect(() => {
-        if (user2) {
-            setToUser(user2);
-        }
-    }, [user2]);
-
-    useEffect(() => {
-        const unsubscribe = userStore.subscribe(() => {
-            setUserInfo(userStore.getState().token);
-        });
-        setUserInfo(userStore.getState().token);
-        return () => unsubscribe();
-    }, []);
-
     function getPrintableUsername(token: string): string {
         const user = decode(token) as {
             admin: boolean;
@@ -51,6 +37,37 @@ function Conversation() {
     }
 
     const loggedUser = userInfo ? getPrintableUsername(userInfo) : 'guest';
+
+    useEffect(() => {
+        loadMessages_all()
+            .then((loadedMessages) => {
+                setMessages(loadedMessages.filter(
+                    message => 
+                        (message.from_user === loggedUser && message.to_user === toUser) || 
+                        (message.from_user === toUser && message.to_user === loggedUser)
+                ));
+            })
+            .catch((error) => {
+                console.error("Error loading messages:", error);
+            });
+    }, [loggedUser, toUser]);
+
+    useEffect(() => {
+        if (user2) {
+            setToUser(user2);
+        }
+    }, [user2]);
+
+    useEffect(() => {
+        const unsubscribe = userStore.subscribe(() => {
+            setUserInfo(userStore.getState().token);
+        });
+        setUserInfo(userStore.getState().token);
+        return () => unsubscribe();
+    }, []);
+    
+
+    
 
     const addMessageToUI = useCallback((ownMessage: boolean, msg: Message) => {
         setMessages((prevMessages) => [...prevMessages, msg]);

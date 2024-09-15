@@ -43,7 +43,7 @@ const AllChat: React.FC = () => {
     useEffect(() => {
         loadMessages_all()
             .then((loadedMessages) => {
-                setMessages(loadedMessages);
+                setMessages(loadedMessages.filter(message => message.to_user === 'all'));
             })
             .catch((error) => {
                 console.error("Error loading messages:", error);
