@@ -138,6 +138,7 @@ function Conversation() {
     return (
         <>
             <div>
+                <h2>{toUser}</h2>
                 <ul ref={messageContainerRef} className="messageContainer">
                     {messages.map((msg, index) => (
                         <li key={index} className={msg.from_user === loggedUser ? 'messageRight' : 'messageLeft'}>

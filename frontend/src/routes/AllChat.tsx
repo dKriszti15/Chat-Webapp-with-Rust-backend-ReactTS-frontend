@@ -1,11 +1,14 @@
-import { decode } from 'jsonwebtoken';
-import React, { useEffect, useState, useCallback } from 'react';
+import React, { useEffect, useLayoutEffect, useState, useCallback, useRef } from 'react';
 import { io, Socket } from 'socket.io-client';
 import { userStore } from '../services/UserService';
 import config from '../config/backendConfig';
 import useSound from 'use-sound';
 import { Message } from '../models/Message';
 import { loadMessages_all, saveMessage } from '../services/MessageService';
+import { decode } from 'jsonwebtoken';
+import { Button } from 'react-bootstrap';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faArrowRightLong } from '@fortawesome/free-solid-svg-icons';
 
 const SENT_SOUND_PATH = '/sounds/sentSound.mp3';
 const RECEIVED_SOUND_PATH = '/sounds/rcvdSound.mp3';
@@ -18,6 +21,8 @@ const AllChat: React.FC = () => {
 
     const [playSentSound] = useSound(SENT_SOUND_PATH);
     const [playReceivedSound] = useSound(RECEIVED_SOUND_PATH);
+
+    const messageContainerRef = useRef<HTMLUListElement>(null);
 
     useEffect(() => {
         const unsubscribe = userStore.subscribe(() => {
@@ -40,6 +45,12 @@ const AllChat: React.FC = () => {
         return user.username;
     }
 
+    const scrollToBottom = useCallback(() => {
+        if (messageContainerRef.current) {
+            messageContainerRef.current.scrollTop = messageContainerRef.current.scrollHeight;
+        }
+    }, []);
+
     useEffect(() => {
         loadMessages_all()
             .then((loadedMessages) => {
@@ -49,18 +60,21 @@ const AllChat: React.FC = () => {
                 console.error("Error loading messages:", error);
             });
     }, []);
-    
+
+    useLayoutEffect(() => {
+        scrollToBottom();
+    }, [messages, scrollToBottom]);
 
     const loggedUser = userInfo ? getPrintableUsername(userInfo) : 'guest';
 
     const addMessageToUI = useCallback((ownMessage: boolean, msg: Message) => {
         setMessages((prevMessages) => [...prevMessages, msg]);
 
-         if (ownMessage) {
-            playSentSound()
-         } else {
+        if (ownMessage) {
+            playSentSound();
+        } else {
             playReceivedSound();
-         }
+        }
     }, [playSentSound, playReceivedSound]);
 
     useEffect(() => {
@@ -99,48 +113,50 @@ const AllChat: React.FC = () => {
         };
 
         socket.emit('message', msg);
-        
+
         setMessageInput('');
         addMessageToUI(true, msg);
 
         saveMessage(msg)
-        .then(() => {
-            console.log("Message saved successfully");
-        })
-        .catch((error) => {
-            console.error("Error saving message:", error);
-        });
-
+            .then(() => {
+                console.log("Message saved successfully");
+            })
+            .catch((error) => {
+                console.error("Error saving message:", error);
+            });
 
         console.log(msg);
     };
 
     return (
         <>
-        <h2>All Chat</h2>
-        <div>
-            <ul className="messageContainer">
-                {messages.map((msg, index) => (
-                    <li key={index} className={msg.from_user === loggedUser ? 'messageRight' : 'messageLeft'}>
-                        <p className="message">
-                            <span>{msg.from_user}: {msg.msg}</span>
-                            <br />
-                            <span> ● {msg.date_time}</span>
-                        </p>
-                    </li>
-                ))}
-            </ul>
+            <h2>All Chat</h2>
+            
+            <div>
+                <ul className="messageContainer" ref={messageContainerRef}>
+                    {messages.map((msg, index) => (
+                        <li key={index} className={msg.from_user === loggedUser ? 'messageRight' : 'messageLeft'}>
+                            <p className="message">
+                                <span>{msg.from_user}: {msg.msg}</span>
+                                <br />
+                                <span> ● {msg.date_time}</span>
+                            </p>
+                        </li>
+                    ))}
+                </ul>
 
-            <form className="messageSendingForm" onSubmit={sendMessage}>
-                <input
-                    type="text"
-                    id="messageInput"
-                    value={messageInput}
-                    onChange={(e) => setMessageInput(e.target.value)}
-                />
-                <button type="submit">Send Message</button>
-            </form>
-        </div>
+                <form className="messageSendingForm" onSubmit={sendMessage}>
+                    <input
+                        type="text"
+                        id="messageInput"
+                        value={messageInput}
+                        onChange={(e) => setMessageInput(e.target.value)}
+                    />
+                    <Button type="submit">
+                        <FontAwesomeIcon id="addUserIcon" icon={faArrowRightLong} />
+                    </Button>
+                </form>
+            </div>
         </>
     );
 };

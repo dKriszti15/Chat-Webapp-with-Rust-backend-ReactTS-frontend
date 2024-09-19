@@ -1,0 +1,6 @@
+{
+    "scripts": {
+      "start-all": "concurrently \"cd backend && cargo run\" \"cd websocketserver && npm start\" \"cd frontend && npm start\""
+    }
+  }
+  

@@ -154,7 +154,6 @@ form {
   margin: 10px auto;
   padding: 10px;
   background-color: #D6E0E2;
-  border: 1px solid #ddd;
   border-radius: 8px;
   font-family: Arial, sans-serif;
   display: flex;
@@ -241,4 +240,6 @@ a {
   background-color: #327243;
 }
 
-
+h2 {
+  padding-top: 40px;
+}
