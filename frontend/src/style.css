@@ -30,7 +30,7 @@ body {
   align-self: center;
   padding: 20px;
   border-radius: 30px;
-  gap: 10px;
+  gap: 20px;
 }
 
 
@@ -38,14 +38,28 @@ body {
   align-self: flex-end;
   background-color: rgb(127, 169, 154);
   border-radius: 10px;
-  padding: 15px;
+  padding: 10px;
 }
 
 .messageLeft {
   align-self: flex-start;
   background-color: rgb(84, 136, 160);
   border-radius: 10px;
-  padding: 15px;
+  padding: 10px;
+}
+
+.messageSenderRight {
+  padding-right: 10px;
+  text-align: right;
+}
+
+.messageSenderLeft {
+  padding-left: 10px;
+  text-align: left;
+}
+
+.messageContainer .messageDateTime {
+  font-size: small;
 }
 
 ul {

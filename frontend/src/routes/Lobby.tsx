@@ -53,6 +53,10 @@ function Lobby() {
 
             socketRef.current.emit('register', loggedUser);
             socketRef.current.emit('connected-clients', loggedUser);
+
+            socketRef.current.on('error', ( errorMessage: string ) => {
+                alert(errorMessage);
+            })
         
             socketRef.current.on('connected-clients', (activeUsers: string[]) => {
                 setActiveUsers(activeUsers); 

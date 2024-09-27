@@ -139,7 +139,7 @@ const AllChat: React.FC = () => {
                             <p className="message">
                                 <span>{msg.from_user}: {msg.msg}</span>
                                 <br />
-                                <span> ● {msg.date_time}</span>
+                                <span className="messageDateTime">{msg.date_time}</span>
                             </p>
                         </li>
                     ))}

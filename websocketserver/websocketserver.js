@@ -25,9 +25,16 @@ io.on('connection', (socket) => {
     console.log(`Client connected: ${socket.id}`);
 
     socket.on('register', (username) => {
-        connectedSockets[username] = socket.id;
-        io.emit('clients-total', Object.keys(connectedSockets).length);
-        console.log(`Client registered: ${username}. Total clients: ${Object.keys(connectedSockets).length}`);
+
+        if (connectedSockets[username] != null) {
+            console.log(`Client ${username} is already logged in.`);
+            socket.emit('error', 'User is already logged in');
+            socket.disconnect();
+        } else {
+            connectedSockets[username] = socket.id;
+            io.emit('clients-total', Object.keys(connectedSockets).length);
+            console.log(`Client registered: ${username}. Total clients: ${Object.keys(connectedSockets).length}`);
+        }
     });
 
     socket.on('disconnect', () => {
@@ -53,7 +60,7 @@ io.on('connection', (socket) => {
 
     socket.on('privateMessage', (data) => {
         const destSocket = connectedSockets[data.to_user];
-        console.log(`to_user's socket: ${destSocket}`)
+        console.log(`to_user's socket: ${destSocket}`);
         if (destSocket) {
             io.to(destSocket).emit('privateChatMessage', data);
         } else {
